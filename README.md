@@ -7,9 +7,7 @@ Very fast and lightweight header encoder/decoder base64 and strlen.
 
 # Benchmarks
 
-More info about benchmarks here:
-
-https://github.com/gaspardpetit/base64/
+Additional information on benchmarks, tests and charts see below.
 
 ### Tests
 
@@ -83,6 +81,8 @@ The development of the *Base64 encoder* was done by **Jouni Malinen (jmalinen)**
 The development of the *Base64 decoder* was done by **Polfosol Balthazar (Name)**
 
 Merge encoders, decoders, strlen in *picobase64* was done by maintainer **Herman Semenov (GermanAizek)**
+
+https://github.com/GermanAizek/picobase64/
 
 Repository *base64* with collection codes and tests was done by maintainer **Gaspard Petit (gaspardpetit)**
 
