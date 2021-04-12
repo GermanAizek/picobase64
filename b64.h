@@ -1,7 +1,7 @@
 /*
  *
  * Copyrights
- * Name Polfosol [https://github.com/polfosol]
+ * Polfosol Balthazar [https://github.com/polfosol]
  * (author bs64 encode and decode)
  *
  * Herman Semenov <GermanAizek@yandex.ru> [https://github.com/GermanAizek]
