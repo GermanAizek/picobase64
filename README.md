@@ -73,3 +73,21 @@ user152949                  5332.87
 ```
 
 ![](https://raw.githubusercontent.com/GermanAizek/picobase64/main/time_decode.svg)
+
+# Copyrights
+
+Thank you so much who developed the algorithms and who tested it.
+
+The development of the *Base64 encoder* was done by **Jouni Malinen (jmalinen)**
+
+The development of the *Base64 decoder* was done by **Polfosol Balthazar (Name)**
+
+Merge encoders, decoders, strlen in *picobase64* was done by maintainer **Herman Semenov (GermanAizek)**
+
+Repository *base64* with collection codes and tests was done by maintainer **Gaspard Petit (gaspardpetit)**
+
+https://github.com/gaspardpetit/base64/
+
+## License
+
+PicoBase64 is licensed under the ([GNU General Public License 3.0](https://www.gnu.org/licenses/gpl-3.0.html))
