@@ -11,6 +11,8 @@ More info about benchmarks here:
 
 https://github.com/gaspardpetit/base64/
 
+Less time (in microseconds) faster.
+
 ```
 FASTEST ENCODERS: The two fastest encoder implementations I found were Jouni Malinen's at http://web.mit.edu/freebsd/head/contrib/wpa/src/utils/base64.c and the Apache at https://opensource.apple.com/source/QuickTimeStreamingServer/QuickTimeStreamingServer-452/CommonUtilitiesLib/base64.c.
 
@@ -35,6 +37,8 @@ LihO                        406.693
 libcurl                     3246.39
 user152949                  4828.21
 ```
+
+![](https://raw.githubusercontent.com/GermanAizek/picobase64/main/time_encode.svg)
 
 ```
 FASTEST DECODERS: Here are the decoding results and I must admit that I am a bit surprised:
