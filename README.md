@@ -22,52 +22,20 @@ and the Apache at
 https://opensource.apple.com/source/QuickTimeStreamingServer/QuickTimeStreamingServer-452/CommonUtilitiesLib/base64.c.
 
 ```
-FASTEST ENCODERS: Here is the time (in microseconds) to encode 32K of data
-using the different algorithms I have tested up to now:
-
-jounimalinen                25.1544
-apache                      25.5309
-NibbleAndAHalf              38.4165
-internetsoftwareconsortium  48.2879
-polfosol                    48.7955
-wikibooks_org_c             51.9659
-gnome                       74.8188
-elegantdice                 118.899
-libb64                      120.601
-manuelmartinez              120.801
-arduino                     126.262
-daedalusalpha               126.473
-CppCodec                    151.866
-wikibooks_org_cpp           343.200
-adp_gmbh                    381.523
-LihO                        406.693
-libcurl                     3246.39
-user152949                  4828.21
+#	Implementation	20	60	100	300	1000	2000	4000	9000	16000	30000	60000
+1	adition	        0.066	0.091	0.114	0.233	0.645	1.303	2.469	5.397	9.465	17.900	35.913
+2	polfosol_mod	0.071	0.095	0.139	0.276	0.816	1.548	3.390	8.021	12.415	24.797	45.845
+3	polfosol	0.079	0.083	0.119	0.278	0.808	1.675	3.482	7.109	12.543	25.381	48.208
+4	tomykaria	0.075	0.126	0.163	0.383	1.191	2.247	4.516	10.338	18.045	32.547	65.836
+5	CppCodec	0.078	0.136	0.190	0.443	1.349	2.723	5.352	11.942	20.938	39.573	78.995
+6	gnome	        0.091	0.152	0.212	0.512	1.509	2.892	5.857	12.630	22.295	42.216	84.956
+7	apache	        0.094	0.180	0.264	0.607	1.850	3.600	7.097	15.923	28.017	52.350	104.498
 ```
 
 ![](https://raw.githubusercontent.com/GermanAizek/picobase64/main/time_encode.svg)
 
 ```
-FASTEST DECODERS: Here are the decoding results and I must admit that
-I am a bit surprised:
 
-polfosol                    45.2335
-wikibooks_org_c             74.7347
-apache                      77.1438
-libb64                      100.332
-gnome                       114.511
-manuelmartinez              126.579
-elegantdice                 138.514
-daedalusalpha               151.561
-jounimalinen                206.163
-arduino                     335.950
-wikibooks_org_cpp           350.437
-CppCodec                    526.187
-internetsoftwareconsortium  862.833
-libcurl                     1280.27
-LihO                        1852.40
-adp_gmbh                    1934.43
-user152949                  5332.87
 ```
 
 ![](https://raw.githubusercontent.com/GermanAizek/picobase64/main/time_decode.svg)
@@ -76,9 +44,9 @@ user152949                  5332.87
 
 Thank you so much who developed the algorithms and who tested it.
 
-The development of the *Base64 encoder* was done by **Jouni Malinen (jmalinen)**
+The development of the *Base64 encoder* was done by **mohsenatigh and leguilc (ADITION technologies AG)**
 
-The development of the *Base64 decoder* was done by **Polfosol Balthazar (Name)**
+The development of the *Base64 decoder* was done by **mohsenatigh and leguilc (ADITION technologies AG)**
 
 Merge encoders, decoders, strlen in *picobase64* was done by maintainer **Herman Semenov (GermanAizek)**
 
