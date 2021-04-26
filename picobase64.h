@@ -5,15 +5,14 @@
 #include <vector>
 #define Constant constexpr
 #define ArrayChar(N) array<char,N>
-#define string string
-
+typedef std::string picostr;
 using namespace std;
 #else
 #include <stdint.h>
 #include <string.h>
 #define Constant const
 #define ArrayChar(N) char[N]
-#define string const char*
+typedef const char* picostr;
 
 void Resize(char* str, size_t curSize, size_t newSize){
     //Allocate new array and copy in data
@@ -153,7 +152,7 @@ uint32_t GetDecodeExpectedLen(uint32_t inLen)
     return ((inLen + 3) / 4) * 3;
 }
 
-std::vector<uint8_t> Decode(const std::string &in)
+std::vector<uint8_t> Decode(const picostr &in)
 {
     std::vector<uint8_t> out;
     uint32_t len = GetDecodeExpectedLen(in.size());
@@ -163,18 +162,18 @@ std::vector<uint8_t> Decode(const std::string &in)
     return out;
 }
 
-string Encode(const std::vector<uint8_t>& in)
+picostr Encode(const std::vector<uint8_t>& in)
 {
-    string out;
+	picostr out;
     uint32_t eLen = GetEncodeLen(in.size());
     out.resize(eLen);
     EncodeChunk(in.data(), in.size(), &out[0]);
     return out;
 }
 
-string b64encode(const string &bytes)
+picostr b64encode(const picostr &bytes)
 {
-    string out;
+	picostr out;
 #ifdef __cplusplus
     uint32_t eLen = GetEncodeLen(bytes.length());
 #else
@@ -185,9 +184,9 @@ string b64encode(const string &bytes)
     return out;
 }
 
-string b64decode(const string &base64)
+picostr b64decode(const picostr &base64)
 {
-    string out;
+	picostr out;
 
 #ifdef __cplusplus
     uint32_t eLen = GetDecodeExpectedLen(base64.length());
