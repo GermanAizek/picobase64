@@ -4,9 +4,8 @@
 #include <iostream>
 #include <vector>
 #define Constant constexpr
-#define ArrayChar(N) array<char,N>
+#define ArrayChar(N) std::array<char,N>
 typedef std::string picostr;
-using namespace std;
 #else
 #include <stdint.h>
 #include <string.h>
