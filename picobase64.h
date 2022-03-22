@@ -4,10 +4,17 @@
 #include <array>
 #include <cstdint>
 #include <iostream>
-#include <vector>
 
 #define ArrayChar(N) std::array<char,N>
-typedef std::string picostr;
+typedef std::string  picostr;
+
+#ifdef __clang__
+#define PicoConst    constexpr
+typedef size_t       picouint;
+#else
+#define PicoConst    const
+typedef int          picouint;
+#endif
 
 #else
 
@@ -33,12 +40,12 @@ void Resize(char* str, size_t curSize, size_t newSize)
 
 #endif
 
-void EncodeChunk(const uint8_t *in, size_t inLen, char *out) noexcept
+void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
 {
     /*
       translation table
     */
-    alignas(16) const
+    alignas(16) PicoConst
     ArrayChar(64) tTable = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -50,14 +57,14 @@ void EncodeChunk(const uint8_t *in, size_t inLen, char *out) noexcept
     /*
       process bulks
     */
-    int16_t inLongLen = (inLen - 2);
-    int16_t i;
+    picouint inLongLen = (inLen - 2);
+    picouint i;
 
     /*
       process blocks
     */
     const uint8_t *it = in;
-    char *ot = out;
+    uint8_t *ot = out;
 
     for (i = 0; i < inLongLen; i += 3) {
       ot[0] = tTable[((it[0]) >> 2)];
@@ -73,7 +80,7 @@ void EncodeChunk(const uint8_t *in, size_t inLen, char *out) noexcept
     if (inLongLen > 0) {
       ot[0] = tTable[(it[0]) >> 2];
       char sym = '=';
-      int ot0 = ((it[0] & 0x3) << 4);
+      picouint ot0 = ((it[0] & 0x3) << 4);
       if (inLongLen == 1) {
         ot[1] = tTable[ot0];
         ot[2] = sym;
@@ -157,6 +164,10 @@ size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
     return oIndex;
 }
 
+#ifdef __clang__
+inline
+PicoConst
+#endif
 size_t GetEncodeLen(size_t inLen) noexcept
 {
     return ((inLen + 2) / 3) * 4;
@@ -176,7 +187,7 @@ picostr b64encode(const picostr &bytes) noexcept
 #endif
     picostr out;
     out.resize(GetEncodeLen(strLen));
-    EncodeChunk((const uint8_t*)&bytes[0], strLen, &out[0]);
+    EncodeChunk((const uint8_t*)&bytes[0], strLen, (uint8_t*)&out[0]);
     return out;
 }
 
