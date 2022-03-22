@@ -1,30 +1,36 @@
+
 #ifdef __cplusplus
+
 #include <array>
 #include <cstdint>
 #include <iostream>
 #include <vector>
-#define Constant constexpr
+
 #define ArrayChar(N) std::array<char,N>
 typedef std::string picostr;
+
 #else
+
 #include <stdint.h>
 #include <string.h>
-#define Constant const
+
 #define ArrayChar(N) char[N]
 typedef const char* picostr;
 
-void Resize(char* str, size_t curSize, size_t newSize){
-    //Allocate new array and copy in data
+void Resize(char* str, size_t curSize, size_t newSize)
+{
+    // allocate new array and copy in data
     char *newArray = new char[newSize];
     memcpy(newArray, str, curSize);
 
-    //Delete old array
+    // delete old array
     delete [] str;
 
-    //Swap pointers and new size
+    // swap pointers and new size
     str = newArray;
     curSize = newSize;
 }
+
 #endif
 
 void EncodeChunk(const uint8_t *in, size_t inLen, char *out) noexcept
@@ -32,18 +38,24 @@ void EncodeChunk(const uint8_t *in, size_t inLen, char *out) noexcept
     /*
       translation table
     */
+    alignas(16) const
     ArrayChar(64) tTable = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
         'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+    };
 
-    // process bulks
-    int inLongLen = (inLen - 2);
-    int i;
+    /*
+      process bulks
+    */
+    int16_t inLongLen = (inLen - 2);
+    int16_t i;
 
-    // process blocks
+    /*
+      process blocks
+    */
     const uint8_t *it = in;
     char *ot = out;
 
@@ -61,13 +73,13 @@ void EncodeChunk(const uint8_t *in, size_t inLen, char *out) noexcept
     if (inLongLen > 0) {
       ot[0] = tTable[(it[0]) >> 2];
       char sym = '=';
-      int it0 = (it[0] & 0x3);
+      int ot0 = ((it[0] & 0x3) << 4);
       if (inLongLen == 1) {
-        ot[1] = tTable[it0 << 4];
+        ot[1] = tTable[ot0];
         ot[2] = sym;
         ot[3] = sym;
       } else {
-        ot[1] = tTable[((it0 << 4) | ((it[1] & 0xf0) >> 4))];
+        ot[1] = tTable[((ot0 | ((it[1] & 0xf0) >> 4)))];
         ot[2] = tTable[((it[1] & 0x0f)) << 2];
         ot[3] = sym;
       }
@@ -76,7 +88,7 @@ void EncodeChunk(const uint8_t *in, size_t inLen, char *out) noexcept
 
 size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
 {
-    Constant ArrayChar(256) valTable = {
+    const ArrayChar(256) valTable = {
         /* ASCII table */
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -155,9 +167,6 @@ size_t GetDecodeExpectedLen(size_t inLen) noexcept
     return ((inLen + 3) / 4) * 3;
 }
 
-//#ifdef __clang__
-//inline
-//#endif
 picostr b64encode(const picostr &bytes) noexcept
 {
 #ifdef __cplusplus
