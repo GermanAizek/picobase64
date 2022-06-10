@@ -1,6 +1,4 @@
 
-#ifdef __cplusplus
-
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -14,30 +12,6 @@ typedef size_t       picouint;
 #else
 #define PicoConst    const
 typedef int          picouint;
-#endif
-
-#else
-
-#include <stdint.h>
-#include <string.h>
-
-#define ArrayChar(N) char[N]
-typedef const char* picostr;
-
-void Resize(char* str, size_t curSize, size_t newSize)
-{
-    // allocate new array and copy in data
-    char *newArray = new char[newSize];
-    memcpy(newArray, str, curSize);
-
-    // delete old array
-    delete [] str;
-
-    // swap pointers and new size
-    str = newArray;
-    curSize = newSize;
-}
-
 #endif
 
 void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
@@ -93,7 +67,7 @@ void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
     }
 }
 
-size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
+size_t DecodeChunk(const uint8_t* in, size_t inLen, uint8_t *out) noexcept
 {
     const ArrayChar(256) valTable = {
         /* ASCII table */
@@ -117,15 +91,14 @@ size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
 
   // disable code duplication
   #define __FBASE_INIT_DECODE_SEGMENT                                            \
-    const uint8_t *it = reinterpret_cast<const uint8_t *>(&in[i]);               \
+    const uint8_t *it = &in[i];                                                  \
     uint8_t *ot = &out[oIndex];                                                  \
     uint8_t v0 = valTable[it[0]];                                                \
     uint8_t v1 = valTable[it[1]];                                                \
     uint8_t v2 = valTable[it[2]];                                                \
     uint8_t v3 = valTable[it[3]];
 
-
-     // check size
+    // check size
     if (inLen == 0 || (inLen % 4) != 0) {
       return 0;
     }
@@ -180,29 +153,21 @@ size_t GetDecodeExpectedLen(size_t inLen) noexcept
 
 picostr b64encode(const picostr &bytes) noexcept
 {
-#ifdef __cplusplus
-    size_t strLen = bytes.length();
-#else
-    uint32_t eLen = GetEncodeLen(strlen(bytes));
-#endif
+    auto strlen_func = strlen;
+    size_t strLen = strlen_func(bytes.c_str());
     picostr out;
     out.resize(GetEncodeLen(strLen));
     EncodeChunk((const uint8_t*)&bytes[0], strLen, (uint8_t*)&out[0]);
     return out;
 }
 
-picostr b64decode(const picostr &base64) noexcept
+picostr b64decode(const picostr & bytes) noexcept
 {
     picostr out;
-
-#ifdef __cplusplus
-    uint32_t eLen = GetDecodeExpectedLen(base64.length());
+    auto strlen_func = strlen;
+    size_t eLen = GetDecodeExpectedLen(strlen_func(bytes.c_str()));
     out.resize(eLen);
-#else
-    uint32_t eLen = GetDecodeExpectedLen(strlen(base64));
-    Resize(out, strlen(out), eLen);
-#endif
-    eLen = DecodeChunk(base64.c_str(), base64.length(), reinterpret_cast<uint8_t*>(&out[0]));
+    eLen = DecodeChunk((const uint8_t*)&bytes[0], strlen_func(bytes.c_str()), (uint8_t*)(&out[0]));
     out.resize(eLen);
     return out;
 }
