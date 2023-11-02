@@ -4,9 +4,10 @@
 #include <array>
 #include <cstdint>
 #include <iostream>
+#include <string_view>
 
 #define ArrayChar(N) std::array<char,N>
-typedef std::string  picostr;
+typedef std::string_view  picostr;
 
 #ifdef __clang__
 #define PicoConst    constexpr const
@@ -95,7 +96,8 @@ void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
 
 size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
 {
-    const ArrayChar(256) valTable = {
+    alignas(16) PicoConst
+    ArrayChar(256) valTable = {
         /* ASCII table */
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -111,7 +113,8 @@ size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
-        64, 64, 64, 64};
+        64, 64, 64, 64
+    };
 
     int i;
 
@@ -182,10 +185,10 @@ size_t GetDecodeExpectedLen(size_t inLen) noexcept
     return ((inLen + 3) / 4) * 3;
 }
 
-picostr b64encode(const picostr &bytes) noexcept
+auto b64encode(picostr bytes) noexcept
 {
 #ifdef __cplusplus
-    size_t strLen = bytes.length();
+    constexpr auto strLen = GetEncodeLen(std::string_view(bytes).length());
 #else
     uint32_t eLen = GetEncodeLen(strlen(bytes));
 #endif
@@ -195,12 +198,12 @@ picostr b64encode(const picostr &bytes) noexcept
     return out;
 }
 
-picostr b64decode(const picostr &base64) noexcept
+auto b64decode(picostr base64) noexcept
 {
     picostr out;
 
 #ifdef __cplusplus
-    uint32_t eLen = GetDecodeExpectedLen(base64.length());
+    constexpr auto eLen = GetDecodeExpectedLen(std::string_view(base64).length());
     out.resize(eLen);
 #else
     uint32_t eLen = GetDecodeExpectedLen(strlen(base64));
