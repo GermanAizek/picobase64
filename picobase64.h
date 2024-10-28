@@ -188,7 +188,7 @@ size_t GetDecodeExpectedLen(size_t inLen) noexcept
 auto b64encode(picostr bytes) noexcept
 {
 #ifdef __cplusplus
-    auto strLen = GetEncodeLen(std::string_view(bytes).length());
+    auto strLen = bytes.length();
 #else
     uint32_t eLen = GetEncodeLen(strlen(bytes));
 #endif
