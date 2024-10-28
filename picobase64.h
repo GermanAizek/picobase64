@@ -188,11 +188,11 @@ size_t GetDecodeExpectedLen(size_t inLen) noexcept
 auto b64encode(picostr bytes) noexcept
 {
 #ifdef __cplusplus
-    constexpr auto strLen = GetEncodeLen(std::string_view(bytes).length());
+    auto strLen = GetEncodeLen(std::string_view(bytes).length());
 #else
     uint32_t eLen = GetEncodeLen(strlen(bytes));
 #endif
-    picostr out;
+    std::string out;
     out.resize(GetEncodeLen(strLen));
     EncodeChunk((const uint8_t*)&bytes[0], strLen, (uint8_t*)&out[0]);
     return out;
@@ -200,16 +200,16 @@ auto b64encode(picostr bytes) noexcept
 
 auto b64decode(picostr base64) noexcept
 {
-    picostr out;
+  std::string out;
 
 #ifdef __cplusplus
-    constexpr auto eLen = GetDecodeExpectedLen(std::string_view(base64).length());
+    auto eLen = GetDecodeExpectedLen(std::string_view(base64).length());
     out.resize(eLen);
 #else
     uint32_t eLen = GetDecodeExpectedLen(strlen(base64));
     Resize(out, strlen(out), eLen);
 #endif
-    eLen = DecodeChunk(base64.c_str(), base64.length(), reinterpret_cast<uint8_t*>(&out[0]));
+    eLen = DecodeChunk(base64.data(), base64.length(), reinterpret_cast<uint8_t*>(&out[0]));
     out.resize(eLen);
     return out;
 }
