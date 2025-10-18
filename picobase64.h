@@ -68,6 +68,10 @@ void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
     uint8_t *ot = out;
 
     for (i = 0; i < inLongLen; i += 3) {
+      // Prefetch input and output buffers for the next iteration
+      __builtin_prefetch(it + 3, 0, 3); // Read, high locality
+      __builtin_prefetch(ot + 4, 1, 3); // Write, high locality
+
       ot[0] = tTable[((it[0]) >> 2)];
       ot[1] = tTable[(((it[0] & 0x03) << 4) | (((it[1]) >> 4)))];
       ot[2] = tTable[(((it[1] & 0x0f) << 2) | (((it[2]) >> 6)))];
@@ -138,6 +142,10 @@ size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
     uint32_t oIndex = 0;
 
     for (i = 0; i < inLongLen; i += 4, oIndex += 3) {
+      // Prefetch input and output buffers for the next iteration
+      __builtin_prefetch(in + i + 4, 0, 3); // Read, high locality
+      __builtin_prefetch(out + oIndex + 3, 1, 3); // Write, high locality
+
       __FBASE_INIT_DECODE_SEGMENT
       ot[0] = ((v0 << 2) | (v1 >> 4)); // 6 bytes from v0 + 2 byte from v1
       ot[1] = ((v1 << 4) | (v2 >> 2)); // 4 byte from v1 and 4 byte from v2
