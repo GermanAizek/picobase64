@@ -1,8 +1,12 @@
 # picobase64
-Very fast and lightweight header encoder/decoder base64 and strlen.
+Very fast and lightweight header-only base64 library. Without excess SIMD, dependencies. Include file and work with it.
 
-Many thanks:
-- 2025 [vogma Marco](https://github.com/vogma)
+Simple just coding.
+
+Have fun!
+
+### Many thanks:
+- 2025 [vogma Marco](https://github.com/vogma) compilation fixes
 
 # Benchmarks
 
