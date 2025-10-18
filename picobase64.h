@@ -67,11 +67,37 @@ void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
     const uint8_t *it = in;
     uint8_t *ot = out;
 
-    for (i = 0; i < inLongLen; i += 3) {
-      // Prefetch input and output buffers for the next iteration
-      __builtin_prefetch(it + 3, 0, 3); // Read, high locality
-      __builtin_prefetch(ot + 4, 1, 3); // Write, high locality
+    for (i = 0; i < inLongLen; i += 12) { // Process 4 chunks (12 bytes) at a time
+      // Prefetch input and output buffers for the next 4 iterations (12 bytes in, 16 bytes out)
+      __builtin_prefetch(it + 12, 0, 0); // Read, low locality
+      __builtin_prefetch(ot + 16, 1, 0); // Write, low locality
 
+      ot[0] = tTable[((it[0]) >> 2)];
+      ot[1] = tTable[(((it[0] & 0x03) << 4) | (((it[1]) >> 4)))];
+      ot[2] = tTable[(((it[1] & 0x0f) << 2) | (((it[2]) >> 6)))];
+      ot[3] = tTable[(it[2] & 0x3f)];
+
+      ot[4] = tTable[((it[3]) >> 2)];
+      ot[5] = tTable[(((it[3] & 0x03) << 4) | (((it[4]) >> 4)))];
+      ot[6] = tTable[(((it[4] & 0x0f) << 2) | (((it[5]) >> 6)))];
+      ot[7] = tTable[(it[5] & 0x3f)];
+
+      ot[8] = tTable[((it[6]) >> 2)];
+      ot[9] = tTable[(((it[6] & 0x03) << 4) | (((it[7]) >> 4)))];
+      ot[10] = tTable[(((it[7] & 0x0f) << 2) | (((it[8]) >> 6)))];
+      ot[11] = tTable[(it[8] & 0x3f)];
+
+      ot[12] = tTable[((it[9]) >> 2)];
+      ot[13] = tTable[(((it[9] & 0x03) << 4) | (((it[10]) >> 4)))];
+      ot[14] = tTable[(((it[10] & 0x0f) << 2) | (((it[11]) >> 6)))];
+      ot[15] = tTable[(it[11] & 0x3f)];
+
+      it += 12;
+      ot += 16;
+    }
+
+    // Process remaining chunks (0 to 3 chunks)
+    for (; i < inLongLen; i += 3) {
       ot[0] = tTable[((it[0]) >> 2)];
       ot[1] = tTable[(((it[0] & 0x03) << 4) | (((it[1]) >> 4)))];
       ot[2] = tTable[(((it[1] & 0x0f) << 2) | (((it[2]) >> 6)))];
@@ -142,9 +168,8 @@ size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
     uint32_t oIndex = 0;
 
     for (i = 0; i < inLongLen; i += 4, oIndex += 3) {
-      // Prefetch input and output buffers for the next iteration
-      __builtin_prefetch(in + i + 4, 0, 3); // Read, high locality
-      __builtin_prefetch(out + oIndex + 3, 1, 3); // Write, high locality
+      __builtin_prefetch(in + i + 4, 0, 0); // Read, low locality
+      __builtin_prefetch(out + oIndex + 3, 1, 0); // Write, low locality
 
       __FBASE_INIT_DECODE_SEGMENT
       ot[0] = ((v0 << 2) | (v1 >> 4)); // 6 bytes from v0 + 2 byte from v1
