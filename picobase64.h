@@ -41,7 +41,6 @@ void Resize(char* str, size_t curSize, size_t newSize)
 
 #endif
 
-
 void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
 {
     /*
@@ -143,52 +142,79 @@ size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
         64, 64, 64, 64
     };
 
-    int i;
-
-  // disable code duplication
-  #define __FBASE_INIT_DECODE_SEGMENT                                            \
-    const uint8_t *it = reinterpret_cast<const uint8_t *>(&in[i]);               \
-    uint8_t *ot = &out[oIndex];                                                  \
-    uint8_t v0 = valTable[it[0]];                                                \
-    uint8_t v1 = valTable[it[1]];                                                \
-    uint8_t v2 = valTable[it[2]];                                                \
-    uint8_t v3 = valTable[it[3]];
-
+    picouint i;
+    const uint8_t *it;
+    uint8_t *ot;
+    uint8_t v[4];
 
      // check size
     if (inLen == 0 || (inLen % 4) != 0) {
       return 0;
     }
 
-    // remove pads from bulk process
-    int inLongLen = (inLen - 4);
-    uint32_t oIndex = 0;
+    // Process 4 chunks (16 bytes) at a time
+    picouint inLongLen = (inLen - 16);
+    picouint oIndex = 0;
 
-    for (i = 0; i < inLongLen; i += 4, oIndex += 3) {
-      __builtin_prefetch(in + i + 4, 0, 0); // Read, low locality
-      __builtin_prefetch(out + oIndex + 3, 1, 0); // Write, low locality
+    for (i = 0; i < inLongLen; i += 16) {
+      it = reinterpret_cast<const uint8_t *>(&in[i]);
+      ot = &out[oIndex];
 
-      __FBASE_INIT_DECODE_SEGMENT
-      ot[0] = ((v0 << 2) | (v1 >> 4)); // 6 bytes from v0 + 2 byte from v1
-      ot[1] = ((v1 << 4) | (v2 >> 2)); // 4 byte from v1 and 4 byte from v2
-      ot[2] = ((v2 << 6) | (v3));      // 2 byte from v2 and 6 byte from v3
+      v[0] = valTable[it[0]]; v[1] = valTable[it[1]]; v[2] = valTable[it[2]]; v[3] = valTable[it[3]];
+      ot[0] = ((v[0] << 2) | (v[1] >> 4));
+      ot[1] = ((v[1] << 4) | (v[2] >> 2));
+      ot[2] = ((v[2] << 6) | (v[3]));
+
+      v[0] = valTable[it[4]]; v[1] = valTable[it[5]]; v[2] = valTable[it[6]]; v[3] = valTable[it[7]];
+      ot[3] = ((v[0] << 2) | (v[1] >> 4));
+      ot[4] = ((v[1] << 4) | (v[2] >> 2));
+      ot[5] = ((v[2] << 6) | (v[3]));
+
+      v[0] = valTable[it[8]]; v[1] = valTable[it[9]]; v[2] = valTable[it[10]]; v[3] = valTable[it[11]];
+      ot[6] = ((v[0] << 2) | (v[1] >> 4));
+      ot[7] = ((v[1] << 4) | (v[2] >> 2));
+      ot[8] = ((v[2] << 6) | (v[3]));
+
+      v[0] = valTable[it[12]]; v[1] = valTable[it[13]]; v[2] = valTable[it[14]]; v[3] = valTable[it[15]];
+      ot[9] = ((v[0] << 2) | (v[1] >> 4));
+      ot[10] = ((v[1] << 4) | (v[2] >> 2));
+      ot[11] = ((v[2] << 6) | (v[3]));
+
+      oIndex += 12;
+    }
+
+    // Process remaining chunks (0 to 3 chunks)
+    for (; i < (inLen - 4); i += 4, oIndex += 3) {
+      it = reinterpret_cast<const uint8_t *>(&in[i]);
+      ot = &out[oIndex];
+      v[0] = valTable[it[0]]; v[1] = valTable[it[1]]; v[2] = valTable[it[2]]; v[3] = valTable[it[3]];
+
+      ot[0] = ((v[0] << 2) | (v[1] >> 4));
+      ot[1] = ((v[1] << 4) | (v[2] >> 2));
+      ot[2] = ((v[2] << 6) | (v[3]));
     }
 
     // check for last segment
     {
-      __FBASE_INIT_DECODE_SEGMENT
-      uint32_t padCnt = 0;
-      ot[0] = ((v0 << 2) | (v1 >> 4)); // 6 bytes from v0 + 2 byte from v1
-      if (v2 != 64) {
-        ot[1] = ((v1 << 4) | (v2 >> 2));
+      it = reinterpret_cast<const uint8_t *>(&in[i]);
+      ot = &out[oIndex];
+      v[0] = valTable[it[0]];
+      v[1] = valTable[it[1]];
+      v[2] = valTable[it[2]];
+      v[3] = valTable[it[3]];
+
+      picouint padCnt = 0;
+      ot[0] = ((v[0] << 2) | (v[1] >> 4)); // 6 bytes from v0 + 2 byte from v1
+      if (v[2] != 64) {
+        ot[1] = ((v[1] << 4) | (v[2] >> 2));
       } else {
-        ot[1] = ((v1 << 4)); // 4 byte from v1 + pad
+        ot[1] = ((v[1] << 4)); // 4 byte from v1 + pad
         padCnt++;
       }
-      if (v3 != 64) {
-        ot[2] = ((v2 << 6) | (v3));
+      if (v[3] != 64) {
+        ot[2] = ((v[2] << 6) | (v[3]));
       } else {
-        ot[2] = ((v2 << 6)); // 2 byte from v2 + pad
+        ot[2] = ((v[2] << 6)); // 2 byte from v2 + pad
         padCnt++;
       }
       oIndex += (3 - padCnt);
