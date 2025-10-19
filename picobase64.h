@@ -41,6 +41,7 @@ void Resize(char* str, size_t curSize, size_t newSize)
 
 #endif
 
+
 void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
 {
     /*
@@ -68,10 +69,6 @@ void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
     uint8_t *ot = out;
 
     for (i = 0; i < inLongLen; i += 12) { // Process 4 chunks (12 bytes) at a time
-      // Prefetch input and output buffers for the next 4 iterations (12 bytes in, 16 bytes out)
-      __builtin_prefetch(it + 12, 0, 0); // Read, low locality
-      __builtin_prefetch(ot + 16, 1, 0); // Write, low locality
-
       ot[0] = tTable[((it[0]) >> 2)];
       ot[1] = tTable[(((it[0] & 0x03) << 4) | (((it[1]) >> 4)))];
       ot[2] = tTable[(((it[1] & 0x0f) << 2) | (((it[2]) >> 6)))];
