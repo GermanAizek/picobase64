@@ -8,11 +8,23 @@ Have fun!
 ### Many thanks:
 - 2025 [vogma Marco](https://github.com/vogma) compilation fixes
 
-# Benchmarks
+# Example
 
-Additional information on benchmarks, tests and charts see below.
+```cpp
+#include <iostream>
+#include <string>
+#include "picobase64.h"
 
-### Tests
+int main() {
+    std::string str = "John Doe with IBM 5100";
+    std::cout << b64encode(str); // Sm9obiBEb2Ugd2l0aCBJQk0gNTEwMA==
+    std::string base64_str = b64encode(str);
+    std::cout << b64decode(base64_str); // John Doe with IBM 5100
+    return 0;
+}
+```
+
+### Tests and benchmarks
 
 Repository *base64* with collection codes and tests was done by maintainer **Gaspard Petit (gaspardpetit)**
 
