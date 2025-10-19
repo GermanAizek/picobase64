@@ -46,7 +46,7 @@ void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
     /*
       translation table
     */
-    alignas(16) PicoConst
+    PicoConst
     ArrayChar(64) tTable = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -122,7 +122,7 @@ void EncodeChunk(const uint8_t *in, size_t inLen, uint8_t *out) noexcept
 
 size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
 {
-    alignas(16) PicoConst
+    PicoConst
     ArrayChar(256) valTable = {
         /* ASCII table */
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -146,11 +146,6 @@ size_t DecodeChunk(const char *in, size_t inLen,uint8_t *out) noexcept
     const uint8_t *it;
     uint8_t *ot;
     uint8_t v[4];
-
-     // check size
-    if (inLen == 0 || (inLen % 4) != 0) {
-      return 0;
-    }
 
     // Process 4 chunks (16 bytes) at a time
     picouint inLongLen = (inLen - 16);
